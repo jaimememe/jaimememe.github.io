@@ -161,28 +161,27 @@ cada cambio que hagas y usa nombres de variables en español.</code></pre>
         <!-- 7 -->
         <section id="estructura">
             <h2>7. Estructura del proyecto</h2>
-<pre><code>agente-swing/
-├── pom.xml                         <span class="c"># dependencias (Maven)</span>
-├── README.md
+            <p>La organización sigue el mismo estilo del proyecto base de la materia: una carpeta <code>src/</code> con paquetes por capa, un <code>Main</code> que solo crea la ventana y una ventana armada con paneles separados.</p>
+<pre><code>ProyectoFinal/
+├── lib/                            <span class="c"># jars del SDK de la API (VS Code los reconoce solo)</span>
 ├── agentes/                        <span class="c"># un archivo .md por agente</span>
 │   ├── asistente.md
 │   ├── explorador.md
 │   ├── programador.md
 │   └── creador-de-agentes.md
-└── src/main/java/agenteswing/
-    ├── <span class="k">Main.java</span>                   <span class="c"># punto de entrada</span>
-    ├── ui/                         <span class="c"># interfaz gráfica (Swing)</span>
-    │   ├── VentanaPrincipal.java
-    │   ├── PanelChat.java
-    │   ├── PanelAgentes.java
-    │   └── DialogoNuevoAgente.java
-    ├── agente/                     <span class="c"># modelo de los agentes</span>
+└── src/
+    ├── app/
+    │   └── <span class="k">Main.java</span>               <span class="c"># crea VentanaAgente y la muestra</span>
+    ├── vista/                      <span class="c"># interfaz gráfica (Swing)</span>
+    │   ├── VentanaAgente.java      <span class="c"># JFrame con BorderLayout</span>
+    │   ├── PanelEncabezado.java    <span class="c"># NORTH: título y carpeta de trabajo</span>
+    │   ├── PanelAgentes.java       <span class="c"># WEST: lista de agentes</span>
+    │   ├── PanelChat.java          <span class="c"># CENTER: conversación</span>
+    │   ├── PanelEntrada.java       <span class="c"># SOUTH: mensaje y botones</span>
+    │   └── DialogoNuevoAgente.java <span class="c"># formulario para crear agentes</span>
+    ├── modelo/                     <span class="c"># datos del programa</span>
     │   ├── Agente.java
-    │   └── RepositorioAgentes.java
-    ├── nucleo/                     <span class="c"># conexión con el LLM y bucle</span>
-    │   ├── ClienteLLM.java
-    │   ├── BucleAgente.java
-    │   └── EscuchaBucle.java
+    │   └── Mensaje.java
     ├── herramientas/               <span class="c"># acciones sobre archivos</span>
     │   ├── Herramienta.java        <span class="c"># interfaz</span>
     │   ├── HerramientaBase.java    <span class="c"># clase abstracta</span>
@@ -191,36 +190,97 @@ cada cambio que hagas y usa nombres de variables en español.</code></pre>
     │   ├── EscribirArchivo.java
     │   ├── EditarArchivo.java
     │   ├── CrearCarpeta.java
-    │   └── RegistroHerramientas.java
-    └── seguridad/
-        └── EspacioTrabajo.java     <span class="c"># limita el acceso a la carpeta</span></code></pre>
+    │   ├── RegistroHerramientas.java
+    │   └── EspacioTrabajo.java     <span class="c"># limita el acceso a la carpeta</span>
+    └── controlador/                <span class="c"># lógica: une la vista con la IA</span>
+        ├── ClienteLLM.java
+        ├── BucleAgente.java
+        ├── EscuchaBucle.java
+        └── GestorAgentes.java</code></pre>
+            <h3>Distribución de la ventana</h3>
+            <div class="layout">
+                <div class="zona norte"><b>NORTH</b> PanelEncabezado</div>
+                <div class="zona oeste"><b>WEST</b> PanelAgentes</div>
+                <div class="zona centro"><b>CENTER</b> PanelChat</div>
+                <div class="zona sur"><b>SOUTH</b> PanelEntrada</div>
+            </div>
+<pre><code>package vista;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class VentanaAgente extends JFrame {
+
+    private PanelEncabezado pnlEncabezado;
+    private PanelAgentes pnlAgentes;
+    private PanelChat pnlChat;
+    private PanelEntrada pnlEntrada;
+
+    public VentanaAgente() {
+        setTitle("Agente IA - Programación 2");
+        setSize(1000, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout(10, 10));
+
+        pnlEncabezado = new PanelEncabezado();
+        pnlAgentes = new PanelAgentes();
+        pnlChat = new PanelChat();
+        pnlEntrada = new PanelEntrada();
+
+        add(pnlEncabezado, BorderLayout.NORTH);
+        add(pnlAgentes, BorderLayout.WEST);
+        add(pnlChat, BorderLayout.CENTER);
+        add(pnlEntrada, BorderLayout.SOUTH);
+    }
+}</code></pre>
+            <h3>Convenciones de nombres</h3>
+            <table>
+                <tr><th>Prefijo</th><th>Componente</th><th>Ejemplo</th></tr>
+                <tr><td><code>pnl</code></td><td><code>JPanel</code></td><td><code>pnlChat</code></td></tr>
+                <tr><td><code>lbl</code></td><td><code>JLabel</code></td><td><code>lblTitulo</code>, <code>lblCarpeta</code></td></tr>
+                <tr><td><code>txt</code></td><td><code>JTextField</code> / <code>JTextArea</code></td><td><code>txtMensaje</code>, <code>txtConversacion</code></td></tr>
+                <tr><td><code>btn</code></td><td><code>JButton</code></td><td><code>btnEnviar</code>, <code>btnNuevoAgente</code></td></tr>
+                <tr><td><code>lst</code></td><td><code>JList</code></td><td><code>lstAgentes</code></td></tr>
+                <tr><td><code>cbo</code></td><td><code>JComboBox</code></td><td><code>cboModelo</code></td></tr>
+                <tr><td><code>chk</code></td><td><code>JCheckBox</code></td><td><code>chkConfirmar</code>, <code>chkLeer</code></td></tr>
+            </table>
+            <p>Todos los atributos son <code>private</code>, los nombres van en español y cada panel arma su interfaz en el constructor, igual que en el proyecto base.</p>
         </section>
 
         <!-- 8 -->
         <section id="clases">
             <h2>8. Clases principales</h2>
-            <h3>Paquete <code>ui</code></h3>
+            <h3>Paquete <code>app</code></h3>
             <table>
                 <tr><th>Clase</th><th>Responsabilidad</th></tr>
-                <tr><td><code>VentanaPrincipal</code></td><td><code>JFrame</code> que une el panel de agentes, el chat y el selector de carpeta.</td></tr>
-                <tr><td><code>PanelChat</code></td><td>Muestra los mensajes del usuario, del modelo y de las herramientas; tiene el campo de texto y el botón Enviar.</td></tr>
-                <tr><td><code>PanelAgentes</code></td><td>Lista (<code>JList</code>) de agentes para elegir con cuál hablar.</td></tr>
-                <tr><td><code>DialogoNuevoAgente</code></td><td>Formulario para crear un agente: nombre, instrucciones y casillas de herramientas.</td></tr>
+                <tr><td><code>Main</code></td><td>Punto de entrada: crea <code>VentanaAgente</code> y la hace visible.</td></tr>
             </table>
-            <h3>Paquete <code>agente</code></h3>
+            <h3>Paquete <code>vista</code></h3>
+            <table>
+                <tr><th>Clase</th><th>Hereda de</th><th>Contenido</th></tr>
+                <tr><td><code>VentanaAgente</code></td><td><code>JFrame</code></td><td>Une los cuatro paneles con <code>BorderLayout</code>.</td></tr>
+                <tr><td><code>PanelEncabezado</code></td><td><code>JPanel</code></td><td><code>lblTitulo</code>, <code>lblCarpeta</code> y <code>btnCarpeta</code> para elegir la carpeta de trabajo.</td></tr>
+                <tr><td><code>PanelAgentes</code></td><td><code>JPanel</code></td><td><code>lstAgentes</code> (<code>JList</code>) y <code>btnNuevoAgente</code>.</td></tr>
+                <tr><td><code>PanelChat</code></td><td><code>JPanel</code></td><td><code>txtConversacion</code> de solo lectura con scroll, donde aparecen los mensajes y las herramientas usadas.</td></tr>
+                <tr><td><code>PanelEntrada</code></td><td><code>JPanel</code></td><td><code>txtMensaje</code>, <code>chkConfirmar</code>, <code>btnEnviar</code> y <code>btnLimpiar</code>.</td></tr>
+                <tr><td><code>DialogoNuevoAgente</code></td><td><code>JDialog</code></td><td><code>txtNombre</code>, <code>txtInstrucciones</code>, una casilla por herramienta y <code>btnGuardar</code>.</td></tr>
+            </table>
+            <h3>Paquete <code>modelo</code></h3>
             <table>
                 <tr><th>Clase</th><th>Responsabilidad</th></tr>
                 <tr><td><code>Agente</code></td><td>Guarda nombre, descripción, instrucciones, modelo y lista de herramientas permitidas.</td></tr>
-                <tr><td><code>RepositorioAgentes</code></td><td>Lee los archivos <code>agentes/*.md</code>, los convierte en objetos <code>Agente</code> y guarda los nuevos.</td></tr>
+                <tr><td><code>Mensaje</code></td><td>Un mensaje del chat: quién lo envía (usuario, agente o herramienta) y su texto.</td></tr>
             </table>
-            <h3>Paquete <code>nucleo</code></h3>
+            <h3>Paquete <code>controlador</code></h3>
             <table>
                 <tr><th>Clase</th><th>Responsabilidad</th></tr>
                 <tr><td><code>ClienteLLM</code></td><td>Envuelve el SDK de la API: arma la petición y devuelve la respuesta del modelo.</td></tr>
                 <tr><td><code>BucleAgente</code></td><td>Ejecuta el bucle de la sección 4: llama al modelo, ejecuta herramientas y repite.</td></tr>
-                <tr><td><code>EscuchaBucle</code></td><td>Interfaz para avisar a la interfaz de cada evento (texto nuevo, herramienta usada, error).</td></tr>
+                <tr><td><code>EscuchaBucle</code></td><td>Interfaz para avisar a la vista de cada evento (texto nuevo, herramienta usada, error).</td></tr>
+                <tr><td><code>GestorAgentes</code></td><td>Lee los archivos <code>agentes/*.md</code>, los convierte en objetos <code>Agente</code> y guarda los nuevos.</td></tr>
             </table>
-            <h3>Paquetes <code>herramientas</code> y <code>seguridad</code></h3>
+            <h3>Paquete <code>herramientas</code></h3>
             <table>
                 <tr><th>Clase</th><th>Responsabilidad</th></tr>
                 <tr><td><code>Herramienta</code> (interfaz)</td><td>Define <code>getNombre()</code>, <code>getDescripcion()</code>, <code>getEsquema()</code> y <code>ejecutar(parametros)</code>.</td></tr>
@@ -242,25 +302,39 @@ public interface Herramienta {
         <section id="interfaz">
             <h2>9. Interfaz (maqueta)</h2>
             <div class="ventana">
-                <div class="barra"><i></i><i></i><i></i><span>Agente Swing — 📂 /home/usuario/mi-proyecto</span></div>
+                <div class="barra"><i></i><i></i><i></i><span>Agente IA - Programación 2</span></div>
+                <div class="encabezado">
+                    <div>
+                        <div class="titulo">Agente IA</div>
+                        <div class="sub">📂 /home/usuario/mi-proyecto</div>
+                    </div>
+                    <span class="boton">Cambiar carpeta</span>
+                </div>
                 <div class="cuerpo">
                     <div class="lateral">
+                        <div class="caja-titulo">Agentes</div>
                         <div>🤖 Asistente</div>
                         <div>🔍 Explorador</div>
                         <div class="sel">💻 Programador</div>
                         <div>🧩 Creador de agentes</div>
-                        <small>+ Nuevo agente</small>
+                        <span class="boton">+ Nuevo agente</span>
                     </div>
                     <div class="chat">
+                        <div class="caja-titulo">Conversación</div>
                         <div class="msg yo">Crea un Main.java que imprima "Hola"</div>
                         <div class="tool">🛠️ listar_directorio(".")</div>
                         <div class="tool">🛠️ escribir_archivo("Main.java")  ✔</div>
                         <div class="msg ia">Listo, creé <b>Main.java</b> con un método main que imprime "Hola".</div>
-                        <div class="entrada"><span>Escribe un mensaje…</span><span>Enviar ➤</span></div>
                     </div>
                 </div>
+                <div class="pie">
+                    <span class="campo">Escribe un mensaje…</span>
+                    <label>☑ Confirmar escrituras</label>
+                    <span class="boton">Limpiar</span>
+                    <span class="boton principal">Enviar</span>
+                </div>
             </div>
-            <p>Componentes Swing previstos: <code>JFrame</code>, <code>JSplitPane</code>, <code>JList</code>, <code>JTextPane</code> o <code>JPanel</code> con burbujas para el chat, <code>JTextField</code>, <code>JButton</code>, <code>JFileChooser</code> para elegir la carpeta y <code>JOptionPane</code> para las confirmaciones.</p>
+            <p>Componentes Swing previstos: <code>JFrame</code>, <code>JDialog</code>, <code>JPanel</code> con <code>BorderLayout</code>, <code>GridLayout</code> y <code>FlowLayout</code>, <code>JLabel</code>, <code>JList</code>, <code>JTextArea</code> con <code>JScrollPane</code>, <code>JTextField</code>, <code>JCheckBox</code>, <code>JButton</code>, <code>JFileChooser</code> para elegir la carpeta y <code>JOptionPane</code> para las confirmaciones.</p>
         </section>
 
         <!-- 10 -->
@@ -283,7 +357,9 @@ public interface Herramienta {
                 <tr><td>Clases y objetos</td><td><code>Agente</code>, <code>ClienteLLM</code>, <code>BucleAgente</code>.</td></tr>
                 <tr><td>Encapsulamiento</td><td>Atributos privados con getters en <code>Agente</code> y <code>EspacioTrabajo</code>.</td></tr>
                 <tr><td>Interfaces</td><td><code>Herramienta</code> y <code>EscuchaBucle</code>.</td></tr>
+                <tr><td>Herencia de Swing</td><td><code>VentanaAgente</code> hereda de <code>JFrame</code> y cada panel de <code>JPanel</code>.</td></tr>
                 <tr><td>Herencia y clase abstracta</td><td><code>HerramientaBase</code> → <code>LeerArchivo</code>, <code>EscribirArchivo</code>…</td></tr>
+                <tr><td>Separación en capas</td><td>Paquetes <code>vista</code>, <code>modelo</code>, <code>controlador</code> y <code>herramientas</code>.</td></tr>
                 <tr><td>Polimorfismo</td><td>El bucle ejecuta cualquier <code>Herramienta</code> sin saber cuál es.</td></tr>
                 <tr><td>Colecciones</td><td><code>List</code> de mensajes y agentes, <code>Map</code> en <code>RegistroHerramientas</code>.</td></tr>
                 <tr><td>Manejo de archivos</td><td><code>java.nio.file.Files</code> y <code>Path</code> en las herramientas y el repositorio de agentes.</td></tr>
@@ -298,7 +374,7 @@ public interface Herramienta {
             <h2>12. Tecnologías</h2>
             <ul>
                 <li><strong>Java 17</strong> y <strong>Swing</strong> para la interfaz.</li>
-                <li><strong>Maven</strong> para compilar y manejar dependencias.</li>
+                <li><strong>VS Code</strong> con el Extension Pack for Java; las librerías van en la carpeta <code>lib/</code>, sin Maven.</li>
                 <li><strong>SDK oficial de Anthropic para Java</strong> (<code>com.anthropic:anthropic-java</code>) para conectarse a Claude; modelo por defecto <code>claude-opus-5-5</code>.</li>
                 <li><strong>Linux</strong> como sistema de pruebas.</li>
                 <li><strong>Git y GitHub</strong> para el control de versiones; esta página se publica con GitHub Pages.</li>
@@ -311,7 +387,7 @@ public interface Herramienta {
             <h2>13. Plan de trabajo</h2>
             <ul class="etapas">
                 <li><span class="estado hecho">Hecho</span> Documento y estructura del proyecto (esta página).</li>
-                <li><span class="estado">Pendiente</span> Etapa 1: ventana de chat en Swing, sin IA (solo eco del mensaje).</li>
+                <li><span class="estado">Pendiente</span> Etapa 1: <code>VentanaAgente</code> y sus cuatro paneles, sin IA (solo eco del mensaje).</li>
                 <li><span class="estado">Pendiente</span> Etapa 2: conexión con la API: respuestas de texto en el chat.</li>
                 <li><span class="estado">Pendiente</span> Etapa 3: herramientas de archivos, <code>EspacioTrabajo</code> y bucle del agente.</li>
                 <li><span class="estado">Pendiente</span> Etapa 4: agentes como archivos, panel de agentes y formulario "Nuevo agente".</li>
