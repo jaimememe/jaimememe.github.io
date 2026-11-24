@@ -1,19 +1,26 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Mis Proyectos</title>
     <link rel="stylesheet" href="index.css">
 </head>
 <body>
-    <h1>Proyectos</h1>
-    <p>Lista de proyectos:</p>
-    <ul>
-        <li><a href="proyectos/java_swings/index.html">Proyecto Java Swing</a></li>
-        <li><a href="proyectos/python_django/index.html">Proyecto Python Django</a></li>
-        <li><a href="proyectos/node_js/index.html">Proyecto Node.js</a></li>
-    </ul>
+    <header class="hero">
+        <h1>Mis Proyectos</h1>
+        <p>Una colección de lo que voy construyendo.</p>
+    </header>
+
+    <main>
+        <div class="filtros" id="filtros"></div>
+        <section class="grid" id="proyectos"></section>
+    </main>
+
+    <footer>
+        <p>&copy; <span id="anio"></span> jaimememe</p>
+    </footer>
+
     <script src="index.js"></script>
 </body>
 </html>
