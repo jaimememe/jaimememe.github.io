@@ -1,12 +1,12 @@
 // Para agregar un proyecto nuevo, añade un objeto a esta lista.
 const proyectos = [
     {
-        titulo: "Proyecto Java Swing",
-        descripcion: "Aplicación de escritorio con interfaz gráfica hecha en Java Swing.",
+        titulo: "Agente IA en Java Swing",
+        descripcion: "Chatbot de escritorio con un LLM que lee y escribe archivos en una carpeta de Linux, con varios agentes configurables. Proyecto de Programación 2.",
         enlace: "proyectos/java_swings/index.html",
         icono: "☕",
         color: "#f89820",
-        tags: ["Java", "Swing", "Escritorio"],
+        tags: ["Java", "Swing", "IA", "Pro 2"],
     },
 ];
 

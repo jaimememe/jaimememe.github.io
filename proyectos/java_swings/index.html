@@ -3,16 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Proyecto Java Swing</title>
+    <title>Agente IA en Java Swing · Documento del proyecto</title>
     <link rel="stylesheet" href="../../index.css">
+    <link rel="stylesheet" href="proyecto.css">
 </head>
 <body>
+    <div class="doc">
+        <a class="volver" href="../../index.html">← Volver a proyectos</a>
+    </div>
+
     <header class="hero">
-        <h1>☕ Proyecto Java Swing</h1>
-        <p>En construcción. Pronto habrá más detalles aquí.</p>
+        <span class="etiqueta">Programación 2 · En diseño</span>
+        <h1>☕ Agente IA en Java Swing</h1>
+        <p>Un chatbot de escritorio conectado a un modelo de lenguaje (LLM) que puede leer y escribir archivos en una carpeta de Linux, con varios agentes configurables.</p>
     </header>
-    <main style="text-align:center">
-        <a class="ver" href="../../index.html" style="color:var(--acento)">← Volver a proyectos</a>
+
+    <main class="doc">
+
+        <nav class="indice">
+            <h2>Contenido</h2>
+            <ol>
+                <li><a href="#descripcion">Descripción</a></li>
+                <li><a href="#objetivos">Objetivos</a></li>
+                <li><a href="#funcionalidades">Funcionalidades</a></li>
+                <li><a href="#funcionamiento">Cómo funciona</a></li>
+                <li><a href="#agentes">Los agentes</a></li>
+                <li><a href="#herramientas">Herramientas</a></li>
+                <li><a href="#estructura">Estructura del proyecto</a></li>
+                <li><a href="#clases">Clases principales</a></li>
+                <li><a href="#interfaz">Interfaz</a></li>
+                <li><a href="#seguridad">Seguridad</a></li>
+                <li><a href="#pro2">Conceptos de Pro 2</a></li>
+                <li><a href="#tecnologias">Tecnologías</a></li>
+                <li><a href="#etapas">Plan de trabajo</a></li>
+            </ol>
+        </nav>
+
+        <!-- 1 -->
+        <section id="descripcion">
+            <h2>1. Descripción</h2>
+            <p>El proyecto es un <strong>harness</strong> (arnés) de agentes de inteligencia artificial hecho en Java con interfaz gráfica Swing. Un harness es el programa que rodea al modelo de lenguaje: le envía la conversación, le ofrece herramientas y ejecuta en la computadora las acciones que el modelo pide.</p>
+            <p>El usuario escribe en una ventana de chat. El modelo responde con texto o pide usar una herramienta, por ejemplo "leer el archivo <code>notas.txt</code>" o "crear <code>Main.java</code>". El programa ejecuta esa acción <strong>solo dentro de una carpeta de trabajo</strong> elegida por el usuario, le devuelve el resultado al modelo y continúa hasta que la tarea termina.</p>
+            <p>Además, el programa permite tener <strong>varios agentes</strong>, cada uno con su propio rol, instrucciones y herramientas permitidas. Cada agente se guarda como un archivo, así que el propio chatbot puede crear o modificar agentes nuevos.</p>
+        </section>
+
+        <!-- 2 -->
+        <section id="objetivos">
+            <h2>2. Objetivos</h2>
+            <h3>Objetivo general</h3>
+            <p>Desarrollar una aplicación de escritorio en Java Swing que permita conversar con un modelo de lenguaje y delegarle tareas sobre archivos de un directorio local, usando programación orientada a objetos.</p>
+            <h3>Objetivos específicos</h3>
+            <ul>
+                <li>Diseñar una interfaz gráfica de chat con Swing.</li>
+                <li>Conectar la aplicación con la API de un LLM y manejar el <strong>bucle de herramientas</strong> (tool use).</li>
+                <li>Implementar herramientas para listar, leer, crear y editar archivos usando <code>java.nio</code>.</li>
+                <li>Modelar los agentes y las herramientas con clases, interfaces y polimorfismo.</li>
+                <li>Restringir el acceso del agente a una sola carpeta, para que no pueda tocar el resto del sistema.</li>
+            </ul>
+        </section>
+
+        <!-- 3 -->
+        <section id="funcionalidades">
+            <h2>3. Funcionalidades</h2>
+            <div class="features">
+                <div class="feature">
+                    <div class="ico">💬</div>
+                    <h3>Chat con IA</h3>
+                    <p>Ventana de conversación con historial, en la que se ve lo que el modelo responde.</p>
+                </div>
+                <div class="feature">
+                    <div class="ico">📂</div>
+                    <h3>Carpeta de trabajo</h3>
+                    <p>El usuario elige un directorio y el agente solo puede trabajar dentro de él.</p>
+                </div>
+                <div class="feature">
+                    <div class="ico">🛠️</div>
+                    <h3>Herramientas de archivos</h3>
+                    <p>Listar, leer, crear y editar archivos a pedido del modelo.</p>
+                </div>
+                <div class="feature">
+                    <div class="ico">🤖</div>
+                    <h3>Varios agentes</h3>
+                    <p>Cambiar entre agentes con roles distintos: programador, documentador, revisor…</p>
+                </div>
+                <div class="feature">
+                    <div class="ico">✍️</div>
+                    <h3>Agentes como archivos</h3>
+                    <p>Cada agente es un archivo <code>.md</code>; se pueden crear desde la app o pedírselo al chatbot.</p>
+                </div>
+                <div class="feature">
+                    <div class="ico">✅</div>
+                    <h3>Confirmación</h3>
+                    <p>Antes de escribir o modificar un archivo, la app puede pedir permiso al usuario.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4 -->
+        <section id="funcionamiento">
+            <h2>4. Cómo funciona</h2>
+            <p>El corazón del programa es el <strong>bucle del agente</strong>. Se repite hasta que el modelo responde sin pedir ninguna herramienta:</p>
+            <div class="bucle">
+                <div class="paso"><span class="num">1</span><p>El usuario escribe un mensaje, por ejemplo: <em>"Crea un archivo README con la descripción de este proyecto"</em>.</p></div>
+                <div class="paso"><span class="num">2</span><p>El programa envía a la API: las instrucciones del agente, el historial de la conversación y la lista de herramientas disponibles.</p></div>
+                <div class="paso"><span class="num">3</span><p>El modelo responde. Puede ser <strong>texto final</strong>, o una o varias <strong>peticiones de herramienta</strong> (<code>tool_use</code>), por ejemplo <code>listar_directorio(".")</code>.</p></div>
+                <div class="paso"><span class="num">4</span><p>El programa ejecuta cada herramienta dentro de la carpeta de trabajo y obtiene un resultado o un error.</p></div>
+                <div class="paso"><span class="num">5</span><p>Se agregan al historial la respuesta del modelo y los resultados (<code>tool_result</code>).</p></div>
+                <div class="paso repite"><span class="num">↺</span><p>Si hubo herramientas, se vuelve al paso 2. Si el modelo respondió solo con texto (<code>end_turn</code>), se muestra en el chat y el bucle termina.</p></div>
+            </div>
+            <div class="nota">La llamada a la API se hace en un hilo aparte (<code>SwingWorker</code>) para que la ventana no se congele mientras el modelo piensa.</div>
+        </section>
+
+        <!-- 5 -->
+        <section id="agentes">
+            <h2>5. Los agentes</h2>
+            <p>Un agente es una configuración: nombre, descripción, instrucciones (system prompt), herramientas permitidas y modelo. Se guarda como un archivo Markdown dentro de la carpeta <code>agentes/</code>:</p>
+<pre><code><span class="c"># agentes/programador.md</span>
+---
+nombre: Programador Java
+descripcion: Escribe y corrige código Java
+herramientas: listar_directorio, leer_archivo, escribir_archivo, editar_archivo
+modelo: claude-opus-5-5
+---
+Eres un programador Java que ayuda a un estudiante de Programación 2.
+Antes de modificar un archivo, léelo. Explica en pocas palabras
+cada cambio que hagas y usa nombres de variables en español.</code></pre>
+            <p>Como los agentes son archivos, hay dos formas de crearlos:</p>
+            <ul>
+                <li><strong>Desde la interfaz:</strong> un formulario "Nuevo agente" que genera el archivo.</li>
+                <li><strong>Desde el chat:</strong> pedirle a un agente "crea un agente revisor de código"; el modelo usa <code>escribir_archivo</code> para crear <code>agentes/revisor.md</code> y la lista se recarga.</li>
+            </ul>
+            <h3>Agentes iniciales propuestos</h3>
+            <table>
+                <tr><th>Agente</th><th>Rol</th><th>Herramientas</th></tr>
+                <tr><td>Asistente</td><td>Conversa y responde preguntas, sin tocar archivos.</td><td>Ninguna</td></tr>
+                <tr><td>Explorador</td><td>Lee y resume el contenido de la carpeta.</td><td>listar, leer</td></tr>
+                <tr><td>Programador</td><td>Crea y modifica archivos de código.</td><td>listar, leer, escribir, editar</td></tr>
+                <tr><td>Creador de agentes</td><td>Diseña agentes nuevos y los guarda en <code>agentes/</code>.</td><td>listar, leer, escribir</td></tr>
+            </table>
+        </section>
+
+        <!-- 6 -->
+        <section id="herramientas">
+            <h2>6. Herramientas</h2>
+            <p>Las herramientas son las acciones que el modelo puede pedir. Cada una tiene un nombre, una descripción y un esquema JSON con sus parámetros, que se envían a la API.</p>
+            <table>
+                <tr><th>Herramienta</th><th>Parámetros</th><th>Qué hace</th></tr>
+                <tr><td><code>listar_directorio</code></td><td><code>ruta</code></td><td>Devuelve los archivos y carpetas de una ruta.</td></tr>
+                <tr><td><code>leer_archivo</code></td><td><code>ruta</code></td><td>Devuelve el contenido de un archivo de texto.</td></tr>
+                <tr><td><code>escribir_archivo</code></td><td><code>ruta</code>, <code>contenido</code></td><td>Crea un archivo o reemplaza su contenido.</td></tr>
+                <tr><td><code>editar_archivo</code></td><td><code>ruta</code>, <code>buscar</code>, <code>reemplazar</code></td><td>Cambia un fragmento exacto de texto dentro de un archivo.</td></tr>
+                <tr><td><code>crear_carpeta</code></td><td><code>ruta</code></td><td>Crea un directorio.</td></tr>
+            </table>
+            <p>Todas las rutas son <strong>relativas a la carpeta de trabajo</strong>. Si una herramienta falla (archivo inexistente, ruta fuera de la carpeta), el error se le devuelve al modelo para que lo corrija, en vez de cerrar el programa.</p>
+        </section>
+
+        <!-- 7 -->
+        <section id="estructura">
+            <h2>7. Estructura del proyecto</h2>
+<pre><code>agente-swing/
+├── pom.xml                         <span class="c"># dependencias (Maven)</span>
+├── README.md
+├── agentes/                        <span class="c"># un archivo .md por agente</span>
+│   ├── asistente.md
+│   ├── explorador.md
+│   ├── programador.md
+│   └── creador-de-agentes.md
+└── src/main/java/agenteswing/
+    ├── <span class="k">Main.java</span>                   <span class="c"># punto de entrada</span>
+    ├── ui/                         <span class="c"># interfaz gráfica (Swing)</span>
+    │   ├── VentanaPrincipal.java
+    │   ├── PanelChat.java
+    │   ├── PanelAgentes.java
+    │   └── DialogoNuevoAgente.java
+    ├── agente/                     <span class="c"># modelo de los agentes</span>
+    │   ├── Agente.java
+    │   └── RepositorioAgentes.java
+    ├── nucleo/                     <span class="c"># conexión con el LLM y bucle</span>
+    │   ├── ClienteLLM.java
+    │   ├── BucleAgente.java
+    │   └── EscuchaBucle.java
+    ├── herramientas/               <span class="c"># acciones sobre archivos</span>
+    │   ├── Herramienta.java        <span class="c"># interfaz</span>
+    │   ├── HerramientaBase.java    <span class="c"># clase abstracta</span>
+    │   ├── ListarDirectorio.java
+    │   ├── LeerArchivo.java
+    │   ├── EscribirArchivo.java
+    │   ├── EditarArchivo.java
+    │   ├── CrearCarpeta.java
+    │   └── RegistroHerramientas.java
+    └── seguridad/
+        └── EspacioTrabajo.java     <span class="c"># limita el acceso a la carpeta</span></code></pre>
+        </section>
+
+        <!-- 8 -->
+        <section id="clases">
+            <h2>8. Clases principales</h2>
+            <h3>Paquete <code>ui</code></h3>
+            <table>
+                <tr><th>Clase</th><th>Responsabilidad</th></tr>
+                <tr><td><code>VentanaPrincipal</code></td><td><code>JFrame</code> que une el panel de agentes, el chat y el selector de carpeta.</td></tr>
+                <tr><td><code>PanelChat</code></td><td>Muestra los mensajes del usuario, del modelo y de las herramientas; tiene el campo de texto y el botón Enviar.</td></tr>
+                <tr><td><code>PanelAgentes</code></td><td>Lista (<code>JList</code>) de agentes para elegir con cuál hablar.</td></tr>
+                <tr><td><code>DialogoNuevoAgente</code></td><td>Formulario para crear un agente: nombre, instrucciones y casillas de herramientas.</td></tr>
+            </table>
+            <h3>Paquete <code>agente</code></h3>
+            <table>
+                <tr><th>Clase</th><th>Responsabilidad</th></tr>
+                <tr><td><code>Agente</code></td><td>Guarda nombre, descripción, instrucciones, modelo y lista de herramientas permitidas.</td></tr>
+                <tr><td><code>RepositorioAgentes</code></td><td>Lee los archivos <code>agentes/*.md</code>, los convierte en objetos <code>Agente</code> y guarda los nuevos.</td></tr>
+            </table>
+            <h3>Paquete <code>nucleo</code></h3>
+            <table>
+                <tr><th>Clase</th><th>Responsabilidad</th></tr>
+                <tr><td><code>ClienteLLM</code></td><td>Envuelve el SDK de la API: arma la petición y devuelve la respuesta del modelo.</td></tr>
+                <tr><td><code>BucleAgente</code></td><td>Ejecuta el bucle de la sección 4: llama al modelo, ejecuta herramientas y repite.</td></tr>
+                <tr><td><code>EscuchaBucle</code></td><td>Interfaz para avisar a la interfaz de cada evento (texto nuevo, herramienta usada, error).</td></tr>
+            </table>
+            <h3>Paquetes <code>herramientas</code> y <code>seguridad</code></h3>
+            <table>
+                <tr><th>Clase</th><th>Responsabilidad</th></tr>
+                <tr><td><code>Herramienta</code> (interfaz)</td><td>Define <code>getNombre()</code>, <code>getDescripcion()</code>, <code>getEsquema()</code> y <code>ejecutar(parametros)</code>.</td></tr>
+                <tr><td><code>HerramientaBase</code> (abstracta)</td><td>Código común: leer parámetros y resolver rutas con el <code>EspacioTrabajo</code>.</td></tr>
+                <tr><td><code>LeerArchivo</code>, <code>EscribirArchivo</code>…</td><td>Cada una hereda de <code>HerramientaBase</code> e implementa su propia acción.</td></tr>
+                <tr><td><code>RegistroHerramientas</code></td><td>Mapa nombre → herramienta. Busca cuál ejecutar cuando el modelo la pide.</td></tr>
+                <tr><td><code>EspacioTrabajo</code></td><td>Convierte rutas relativas en absolutas y rechaza las que salen de la carpeta (por ejemplo <code>../../etc</code>).</td></tr>
+            </table>
+<pre><code><span class="c">// Idea de la interfaz común (polimorfismo)</span>
+public interface Herramienta {
+    String getNombre();
+    String getDescripcion();
+    Map&lt;String, Object&gt; getEsquema();
+    String ejecutar(Map&lt;String, Object&gt; parametros) throws Exception;
+}</code></pre>
+        </section>
+
+        <!-- 9 -->
+        <section id="interfaz">
+            <h2>9. Interfaz (maqueta)</h2>
+            <div class="ventana">
+                <div class="barra"><i></i><i></i><i></i><span>Agente Swing — 📂 /home/usuario/mi-proyecto</span></div>
+                <div class="cuerpo">
+                    <div class="lateral">
+                        <div>🤖 Asistente</div>
+                        <div>🔍 Explorador</div>
+                        <div class="sel">💻 Programador</div>
+                        <div>🧩 Creador de agentes</div>
+                        <small>+ Nuevo agente</small>
+                    </div>
+                    <div class="chat">
+                        <div class="msg yo">Crea un Main.java que imprima "Hola"</div>
+                        <div class="tool">🛠️ listar_directorio(".")</div>
+                        <div class="tool">🛠️ escribir_archivo("Main.java")  ✔</div>
+                        <div class="msg ia">Listo, creé <b>Main.java</b> con un método main que imprime "Hola".</div>
+                        <div class="entrada"><span>Escribe un mensaje…</span><span>Enviar ➤</span></div>
+                    </div>
+                </div>
+            </div>
+            <p>Componentes Swing previstos: <code>JFrame</code>, <code>JSplitPane</code>, <code>JList</code>, <code>JTextPane</code> o <code>JPanel</code> con burbujas para el chat, <code>JTextField</code>, <code>JButton</code>, <code>JFileChooser</code> para elegir la carpeta y <code>JOptionPane</code> para las confirmaciones.</p>
+        </section>
+
+        <!-- 10 -->
+        <section id="seguridad">
+            <h2>10. Seguridad</h2>
+            <ul>
+                <li><strong>Carpeta aislada:</strong> toda ruta pasa por <code>EspacioTrabajo</code>, que la normaliza y rechaza cualquier ruta fuera de la carpeta elegida.</li>
+                <li><strong>Sin comandos de sistema:</strong> el agente no puede ejecutar comandos de terminal, solo las herramientas de archivos definidas.</li>
+                <li><strong>Confirmación de escritura:</strong> opción para que el usuario apruebe cada creación o modificación de archivo.</li>
+                <li><strong>Clave de API protegida:</strong> se lee desde la variable de entorno <code>ANTHROPIC_API_KEY</code> y nunca se guarda en el código ni se sube a GitHub.</li>
+                <li><strong>Herramientas por agente:</strong> cada agente recibe solo las herramientas de su archivo (el Asistente, por ejemplo, no puede escribir).</li>
+            </ul>
+        </section>
+
+        <!-- 11 -->
+        <section id="pro2">
+            <h2>11. Conceptos de Programación 2 que aplica</h2>
+            <table>
+                <tr><th>Concepto</th><th>Dónde se usa</th></tr>
+                <tr><td>Clases y objetos</td><td><code>Agente</code>, <code>ClienteLLM</code>, <code>BucleAgente</code>.</td></tr>
+                <tr><td>Encapsulamiento</td><td>Atributos privados con getters en <code>Agente</code> y <code>EspacioTrabajo</code>.</td></tr>
+                <tr><td>Interfaces</td><td><code>Herramienta</code> y <code>EscuchaBucle</code>.</td></tr>
+                <tr><td>Herencia y clase abstracta</td><td><code>HerramientaBase</code> → <code>LeerArchivo</code>, <code>EscribirArchivo</code>…</td></tr>
+                <tr><td>Polimorfismo</td><td>El bucle ejecuta cualquier <code>Herramienta</code> sin saber cuál es.</td></tr>
+                <tr><td>Colecciones</td><td><code>List</code> de mensajes y agentes, <code>Map</code> en <code>RegistroHerramientas</code>.</td></tr>
+                <tr><td>Manejo de archivos</td><td><code>java.nio.file.Files</code> y <code>Path</code> en las herramientas y el repositorio de agentes.</td></tr>
+                <tr><td>Excepciones</td><td>Errores de archivos y de red convertidos en mensajes para el modelo o el usuario.</td></tr>
+                <tr><td>Eventos e interfaz gráfica</td><td><code>ActionListener</code> en botones y lista de agentes.</td></tr>
+                <tr><td>Hilos</td><td><code>SwingWorker</code> para llamar a la API sin congelar la ventana.</td></tr>
+            </table>
+        </section>
+
+        <!-- 12 -->
+        <section id="tecnologias">
+            <h2>12. Tecnologías</h2>
+            <ul>
+                <li><strong>Java 17</strong> y <strong>Swing</strong> para la interfaz.</li>
+                <li><strong>Maven</strong> para compilar y manejar dependencias.</li>
+                <li><strong>SDK oficial de Anthropic para Java</strong> (<code>com.anthropic:anthropic-java</code>) para conectarse a Claude; modelo por defecto <code>claude-opus-5-5</code>.</li>
+                <li><strong>Linux</strong> como sistema de pruebas.</li>
+                <li><strong>Git y GitHub</strong> para el control de versiones; esta página se publica con GitHub Pages.</li>
+            </ul>
+            <div class="nota">Para usar la API hace falta una clave de API de Anthropic (consola de Anthropic). Cada consulta tiene un costo según los tokens usados.</div>
+        </section>
+
+        <!-- 13 -->
+        <section id="etapas">
+            <h2>13. Plan de trabajo</h2>
+            <ul class="etapas">
+                <li><span class="estado hecho">Hecho</span> Documento y estructura del proyecto (esta página).</li>
+                <li><span class="estado">Pendiente</span> Etapa 1: ventana de chat en Swing, sin IA (solo eco del mensaje).</li>
+                <li><span class="estado">Pendiente</span> Etapa 2: conexión con la API: respuestas de texto en el chat.</li>
+                <li><span class="estado">Pendiente</span> Etapa 3: herramientas de archivos, <code>EspacioTrabajo</code> y bucle del agente.</li>
+                <li><span class="estado">Pendiente</span> Etapa 4: agentes como archivos, panel de agentes y formulario "Nuevo agente".</li>
+                <li><span class="estado">Pendiente</span> Etapa 5: confirmaciones, manejo de errores, pruebas y presentación.</li>
+            </ul>
+        </section>
+
     </main>
+
+    <footer>
+        <p>Proyecto de Programación 2 · <a href="../../index.html" style="color:var(--acento)">jaimememe</a></p>
+    </footer>
 </body>
 </html>
