@@ -94,7 +94,7 @@
                 <div class="feature">
                     <div class="ico">✅</div>
                     <h3>Confirmación</h3>
-                    <p>Antes de escribir o modificar un archivo, la app puede pedir permiso al usuario.</p>
+                    <p>Antes de sobrescribir o editar un archivo existente, la app siempre pide permiso al usuario.</p>
                 </div>
             </div>
         </section>
@@ -243,7 +243,6 @@ public class VentanaAgente extends JFrame {
                 <tr><td><code>btn</code></td><td><code>JButton</code></td><td><code>btnEnviar</code>, <code>btnNuevoAgente</code></td></tr>
                 <tr><td><code>lst</code></td><td><code>JList</code></td><td><code>lstAgentes</code></td></tr>
                 <tr><td><code>cbo</code></td><td><code>JComboBox</code></td><td><code>cboModelo</code></td></tr>
-                <tr><td><code>chk</code></td><td><code>JCheckBox</code></td><td><code>chkConfirmar</code>, <code>chkLeer</code></td></tr>
             </table>
             <p>Todos los atributos son <code>private</code>, los nombres van en español y cada panel arma su interfaz en el constructor, igual que en el proyecto base.</p>
         </section>
@@ -263,7 +262,7 @@ public class VentanaAgente extends JFrame {
                 <tr><td><code>PanelEncabezado</code></td><td><code>JPanel</code></td><td><code>lblTitulo</code>, <code>lblCarpeta</code> y <code>btnCarpeta</code> para elegir la carpeta de trabajo.</td></tr>
                 <tr><td><code>PanelAgentes</code></td><td><code>JPanel</code></td><td><code>lstAgentes</code> (<code>JList</code>) y <code>btnNuevoAgente</code>.</td></tr>
                 <tr><td><code>PanelChat</code></td><td><code>JPanel</code></td><td><code>txtConversacion</code> de solo lectura con scroll, donde aparecen los mensajes y las herramientas usadas.</td></tr>
-                <tr><td><code>PanelEntrada</code></td><td><code>JPanel</code></td><td><code>txtMensaje</code>, <code>chkConfirmar</code>, <code>btnEnviar</code> y <code>btnLimpiar</code>.</td></tr>
+                <tr><td><code>PanelEntrada</code></td><td><code>JPanel</code></td><td><code>txtMensaje</code>, <code>btnEnviar</code> y <code>btnLimpiar</code>.</td></tr>
                 <tr><td><code>DialogoNuevoAgente</code></td><td><code>JDialog</code></td><td><code>txtNombre</code>, <code>txtInstrucciones</code>, una casilla por herramienta y <code>btnGuardar</code>.</td></tr>
             </table>
             <h3>Paquete <code>modelo</code></h3>
@@ -329,12 +328,11 @@ public interface Herramienta {
                 </div>
                 <div class="pie">
                     <span class="campo">Escribe un mensaje…</span>
-                    <label>☑ Confirmar escrituras</label>
                     <span class="boton">Limpiar</span>
                     <span class="boton principal">Enviar</span>
                 </div>
             </div>
-            <p>Componentes Swing previstos: <code>JFrame</code>, <code>JDialog</code>, <code>JPanel</code> con <code>BorderLayout</code>, <code>GridLayout</code> y <code>FlowLayout</code>, <code>JLabel</code>, <code>JList</code>, <code>JTextArea</code> con <code>JScrollPane</code>, <code>JTextField</code>, <code>JCheckBox</code>, <code>JButton</code>, <code>JFileChooser</code> para elegir la carpeta y <code>JOptionPane</code> para las confirmaciones.</p>
+            <p>Componentes Swing previstos: <code>JFrame</code>, <code>JDialog</code>, <code>JPanel</code> con <code>BorderLayout</code>, <code>GridLayout</code> y <code>FlowLayout</code>, <code>JLabel</code>, <code>JList</code>, <code>JTextArea</code> con <code>JScrollPane</code>, <code>JTextField</code>, <code>JButton</code>, <code>JFileChooser</code> para elegir la carpeta y <code>JOptionPane</code> para las confirmaciones.</p>
         </section>
 
         <!-- 10 -->
@@ -343,7 +341,8 @@ public interface Herramienta {
             <ul>
                 <li><strong>Carpeta aislada:</strong> toda ruta pasa por <code>EspacioTrabajo</code>, que la normaliza y rechaza cualquier ruta fuera de la carpeta elegida.</li>
                 <li><strong>Sin comandos de sistema:</strong> el agente no puede ejecutar comandos de terminal, solo las herramientas de archivos definidas.</li>
-                <li><strong>Confirmación de escritura:</strong> opción para que el usuario apruebe cada creación o modificación de archivo.</li>
+                <li><strong>Confirmación obligatoria:</strong> antes de sobrescribir o editar un archivo existente, la app siempre pregunta con un <code>JOptionPane</code>. Listar, leer y crear archivos nuevos no requieren confirmación.</li>
+                <li><strong>Sin borrado:</strong> no existe ninguna herramienta para eliminar archivos o carpetas.</li>
                 <li><strong>Clave de API protegida:</strong> se lee desde la variable de entorno <code>ANTHROPIC_API_KEY</code> y nunca se guarda en el código ni se sube a GitHub.</li>
                 <li><strong>Herramientas por agente:</strong> cada agente recibe solo las herramientas de su archivo (el Asistente, por ejemplo, no puede escribir).</li>
             </ul>
